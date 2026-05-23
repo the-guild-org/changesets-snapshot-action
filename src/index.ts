@@ -15,11 +15,6 @@ import { upsertComment } from "./github";
     return;
   }
 
-  if (!npmToken) {
-    core.setFailed("Please add the NPM_TOKEN to the changesets action");
-    return;
-  }
-
   const inputCwd = core.getInput("cwd");
 
   if (inputCwd) {
@@ -34,12 +29,14 @@ import { upsertComment } from "./github";
     await setupGitUser();
   }
 
-  await configureNpmRc(npmToken);
+  if (npmToken) {
+    await configureNpmRc(npmToken);
+  }
 
   console.log("setting GitHub credentials");
   await fs.writeFile(
     `${process.env.HOME}/.netrc`,
-    `machine github.com\nlogin github-actions[bot]\npassword ${githubToken}`
+    `machine github.com\nlogin github-actions[bot]\npassword ${githubToken}`,
   );
 
   let { changesets } = await readChangesetState(inputCwd);
@@ -58,7 +55,7 @@ import { upsertComment } from "./github";
 
   if (!tagName) {
     core.setFailed(
-      "Please configure the 'tag' name you wish to use for the release."
+      "Please configure the 'tag' name you wish to use for the release.",
     );
 
     return;
@@ -78,7 +75,7 @@ import { upsertComment } from "./github";
     let userPrepareScriptOutput = await execWithOutput(
       publishCommand,
       publishArgs,
-      { cwd: inputCwd }
+      { cwd: inputCwd },
     );
 
     if (userPrepareScriptOutput.code !== 0) {
@@ -97,7 +94,7 @@ import { upsertComment } from "./github";
     core.setOutput("published", "true");
     core.setOutput(
       "publishedPackages",
-      JSON.stringify(result.publishedPackages)
+      JSON.stringify(result.publishedPackages),
     );
   }
 

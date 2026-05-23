@@ -49278,10 +49278,6 @@ ${commentBody}`;
     core.setFailed("Please add the GITHUB_TOKEN to the changesets action");
     return;
   }
-  if (!npmToken) {
-    core.setFailed("Please add the NPM_TOKEN to the changesets action");
-    return;
-  }
   const inputCwd = core.getInput("cwd");
   if (inputCwd) {
     console.log("changing directory to the one given as the input: ", inputCwd);
@@ -49292,7 +49288,9 @@ ${commentBody}`;
     console.log("setting git user");
     await setupGitUser();
   }
-  await configureNpmRc(npmToken);
+  if (npmToken) {
+    await configureNpmRc(npmToken);
+  }
   console.log("setting GitHub credentials");
   await import_fs_extra5.default.writeFile(
     `${process.env.HOME}/.netrc`,
