@@ -48750,7 +48750,7 @@ async function execWithOutput(command, args, options) {
   };
 }
 var ANSI_REGEX = /\u001b\[[0-9;]*m/g;
-var NAME_AT_VERSION_REGEX = /^(@[^/\s]+\/[^@\s]+|[^@\s]+)@([^\s]+)$/;
+var NAME_AT_VERSION_REGEX = /^(@[^/\s]+\/[^@/\s]+|[^@/\s]+)@([^\s]+)$/;
 function extractPublishedPackages(line) {
   const cleaned = line.replace(ANSI_REGEX, "").trim();
   let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;

@@ -42,9 +42,10 @@ export async function execWithOutput(
 }
 
 const ANSI_REGEX = /\u001b\[[0-9;]*m/g;
-// Scoped or unscoped package name + version (changesets CLI v3 publish lines)
+// Scoped or unscoped package name + version (changesets CLI v3 publish lines).
+// Disallow `/` in name segments so path-like `packages/foo@1.2.3` is not matched.
 const NAME_AT_VERSION_REGEX =
-  /^(@[^/\s]+\/[^@\s]+|[^@\s]+)@([^\s]+)$/;
+  /^(@[^/\s]+\/[^@/\s]+|[^@/\s]+)@([^\s]+)$/;
 
 export function extractPublishedPackages(
   line: string
