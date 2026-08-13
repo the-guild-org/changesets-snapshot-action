@@ -48749,12 +48749,18 @@ async function execWithOutput(command, args, options) {
     stderr: myError
   };
 }
+var ANSI_REGEX = /\u001b\[[0-9;]*m/g;
+var NAME_AT_VERSION_REGEX = /^(@[^/\s]+\/[^@/\s]+|[^@/\s]+)@([^\s]+)$/;
 function extractPublishedPackages(line) {
+  const cleaned = line.replace(ANSI_REGEX, "").trim();
   let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
-  let match = line.match(newTagRegex);
+  let match = cleaned.match(newTagRegex);
   if (match === null) {
     let npmOutRegex = /Publishing "(.*?)" at "(.*?)"/;
-    match = line.match(npmOutRegex);
+    match = cleaned.match(npmOutRegex);
+  }
+  if (match === null) {
+    match = cleaned.match(NAME_AT_VERSION_REGEX);
   }
   if (match) {
     const [, name, version] = match;

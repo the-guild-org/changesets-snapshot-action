@@ -41,15 +41,32 @@ export async function execWithOutput(
   };
 }
 
+const ANSI_REGEX = /\u001b\[[0-9;]*m/g;
+// Scoped or unscoped package name + version (changesets CLI v3 publish lines).
+// Disallow `/` in name segments so path-like `packages/foo@1.2.3` is not matched.
+const NAME_AT_VERSION_REGEX =
+  /^(@[^/\s]+\/[^@/\s]+|[^@/\s]+)@([^\s]+)$/;
+
 export function extractPublishedPackages(
   line: string
 ): { name: string; version: string } | null {
+  // Strip ASCII colors — NO_COLOR helps, but prompts may still leave codes
+  const cleaned = line.replace(ANSI_REGEX, "").trim();
+
   let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
-  let match = line.match(newTagRegex);
+  let match = cleaned.match(newTagRegex);
 
   if (match === null) {
     let npmOutRegex = /Publishing "(.*?)" at "(.*?)"/;
-    match = line.match(npmOutRegex);
+    match = cleaned.match(npmOutRegex);
+  }
+
+  // @changesets/cli v3 prints:
+  //   Successfully published:
+  //   @scope/pkg@1.2.3
+  //   pkg@1.2.3
+  if (match === null) {
+    match = cleaned.match(NAME_AT_VERSION_REGEX);
   }
 
   if (match) {
